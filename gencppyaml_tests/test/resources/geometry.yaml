@@ -1,0 +1,13 @@
+point:
+    x: 1
+    y: 1
+    z: 1
+
+pose_2d:
+    x: 2.0
+    y: 3.0
+    theta: 4
+
+pointxy:
+    x: 2.0
+    y: 3.0

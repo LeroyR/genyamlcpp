@@ -1,0 +1,14 @@
+bool_t:
+    data: true
+ 
+bool_f:
+    data: false
+
+timestamp_iso: 
+    data: "20190101T100001"
+
+duration_string:
+    data: 00:00:30
+
+duration_string2:
+    data: 01:00:00

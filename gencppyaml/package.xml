@@ -1,0 +1,18 @@
+<package format="2">
+  <name>gencppyaml</name>
+  <version>0.0.1</version>
+  <description>Ros c++ yaml-cpp en/decoder generator</description>
+  <maintainer email="lruegeme@techfak.uni-bielefeld.de">Leroy Ruegemer</maintainer>
+  <license>BSD</license>
+
+  <author>Leroy Ruegemer</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>genmsg</depend>
+
+  <export>
+    <message_generator>cppyaml</message_generator>
+  </export>
+  
+</package>
