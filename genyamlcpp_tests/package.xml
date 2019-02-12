@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>gencppyaml_tests</name>
+  <name>genyamlcpp_tests</name>
   <version>0.0.1</version>
-  <description>Test gencppyaml generated files</description>
+  <description>Test genyamlcpp generated files</description>
   <maintainer email="lruegeme@techfak.uni-bielefeld.de">Leroy Ruegemer</maintainer>
-  <license>Apache 2.0</license>
+  <license>BSD</license>
 
   <author>Leroy Ruegemer</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 
   <depend>cmake_modules</depend>
-  <depend>gencppyaml</depend>
+  <depend>genyamlcpp</depend>
   <depend>geometry_msgs</depend>
   <depend>std_msgs</depend>
   

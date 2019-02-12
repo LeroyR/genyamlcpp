@@ -3,5 +3,6 @@ install(
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 catkin_install_python(
-  PROGRAMS gen_cppyaml.py
+  PROGRAMS gen_yamlcpp.py genyamlcpp_message_artifacts
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+

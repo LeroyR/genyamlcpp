@@ -1,0 +1,110 @@
+#!/usr/bin/env python
+
+"""
+ROS message source code generation for yaml-cpp, from the command line.
+Converts ROS .msg files in a package into yaml-cpp en/decode templates.
+"""
+import os
+import sys
+import errno
+import argparse
+
+import catkin_pkg.packages
+import catkin_pkg.topological_order
+import genmsg
+import genmsg.template_tools
+import genmsg.command_line
+
+import genyamlcpp
+
+
+msg_template_map = { 'msg.h.template':'@NAME@.h' }
+srv_template_map = { 'srv.h.template':'@NAME@.h' }
+template_dir = os.path.dirname(os.path.realpath(__file__))
+
+def parse_arguments(argv):
+	parser = argparse.ArgumentParser(description='Generate yaml-cpp templates for a ros messages.')
+	parser.add_argument('-p', '--package', action='store', help='package to find the message file')
+	parser.add_argument('-o', '--output-dir', action='store', help='output directory, set to devel/install space')
+	parser.add_argument('-I', '--includepath', action='append', help='')
+	parsed_arguments = parser.parse_args(argv)
+	return parsed_arguments
+
+
+def get_all_packages(package_name_list=[], package_paths=None):
+	if package_paths is None:
+		package_paths = os.getenv('ROS_PACKAGE_PATH', '')
+		package_paths = [x for x in package_paths.split(':') if x]
+	all_packages = {}  # mapping package name to (path, catkin_pkg.Package) tuple
+
+	# use reversed to write over any packages lower down in the overlay heirarchy
+	# i.e. no duplicates!
+	for path in reversed(package_paths):
+		for package_path, package in catkin_pkg.packages.find_packages(path).items():
+			# resolve and normalize absolute path because it is used as a key below
+			package_path = os.path.normpath(os.path.join(path, package_path))
+			all_packages[package.name] = (package_path, package)
+
+	# put into the correct form for sorting
+	# The following returns: A list of tuples containing the relative path and a ``Package`` object,
+	sorted_package_tuples = catkin_pkg.topological_order.topological_order_packages(
+	                            packages=dict(all_packages.values()),
+		                        whitelisted=None,
+		                        blacklisted=None,
+		                        underlay_packages=dict(all_packages.values()))
+	return sorted_package_tuples
+
+def search_files(directory='.', extension=''):
+    extension = extension.lower()
+    for dirpath, dirnames, files in os.walk(directory):
+        for name in files:
+            if extension and name.lower().endswith(extension):
+                yield (os.path.join(dirpath, name))
+
+def generate_for_pkg(pkgname, path, output_dir, include_path):
+	full_outdir = os.path.join(os.path.abspath(output_dir), "include", pkgname, "yaml")
+
+	makedir = True
+
+	for msg in search_files(path,".msg"):
+		if makedir:
+			print("Generating message artifact for pkg %s (%s)" % (pkgname,path))
+			try:
+				os.makedirs(full_outdir)
+			except OSError as e:
+				if e.errno != errno.EEXIST: # ignore file exists error
+					raise
+		makedir = False
+		basename = os.path.basename(msg).rsplit('.', 1)[0]
+		print("\tgenerate %s -> %s/%s.h" % (basename, full_outdir, basename))
+		genmsg.template_tools._generate_msg_from_file(input_file=msg, package_name=pkgname, output_dir=full_outdir, template_dir=template_dir, search_path=include_path, msg_template_dict=msg_template_map)
+
+if __name__ == "__main__":
+	args = parse_arguments(sys.argv[1:])
+
+	if not args.output_dir:
+		print("please specify output dir (-o)")
+		sys.exit(-1)
+
+	if not os.path.exists(args.output_dir):
+		print("%s does not exists" % (args.output_dir))
+		sys.exit(-1)
+
+	if not args.package:
+		pkgs = get_all_packages()
+		print("Generating message artifacts for: \n%s" % [p.name for (_, p) in pkgs])
+
+		include_path = {}	
+
+		for path, pkg in pkgs:
+			include_path[pkg.name] = []
+			include_path[pkg.name].append(os.path.join(path, "msg"))
+			include_path[pkg.name].append(os.path.join(path, "srv"))
+			include_path[pkg.name].append(os.path.join(path, "action"))
+
+		for unused_relative_path, p in pkgs:
+			generate_for_pkg(p.name,unused_relative_path,args.output_dir,include_path)
+	#gradle_project.standalone_create_and_build(p.name, args.output_dir, args.verbose, args.avoid_rebuilding)
+
+	#  result = gradle_project.standalone_create_and_build(p.name, args.output_dir, args.verbose, args.avoid_rebuilding)
+	# genmsg.template_tools.generate_from_command_line_options(sys.argv, msg_template_map, srv_template_map)

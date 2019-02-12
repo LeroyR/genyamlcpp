@@ -1,5 +1,5 @@
 <package format="2">
-  <name>gencppyaml</name>
+  <name>genyamlcpp</name>
   <version>0.0.1</version>
   <description>Ros c++ yaml-cpp en/decoder generator</description>
   <maintainer email="lruegeme@techfak.uni-bielefeld.de">Leroy Ruegemer</maintainer>
@@ -12,7 +12,7 @@
   <depend>genmsg</depend>
 
   <export>
-    <message_generator>cppyaml</message_generator>
+    <message_generator>yamlcpp</message_generator>
   </export>
   
 </package>
