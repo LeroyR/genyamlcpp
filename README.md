@@ -16,7 +16,7 @@ target_link_libraries(<target> yaml-cpp)
 
 ### Builtins
 
-yaml-cpp includes converter for ros time and duration (include ros/yaml/<time/duration>.h)
+genyamlcpp includes converter for ros time and duration (e.g. include ros/yaml/[time|duration].h)
 
 ```yaml
 timestamp_iso: 20190101T100001
