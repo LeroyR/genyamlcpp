@@ -63,7 +63,7 @@ struct convert<@(spec.package)::@(spec.short_name)>
 for field in spec.parsed_fields():
   cpp_type = genyamlcpp.msg_type_to_cpp(field.type)
   if (field.is_array):
-    print('    for (auto %s_item : %s) {'%(field.name,field.name))
+    print('    for (auto %s_item : msg.%s) {'%(field.name,field.name))
     print('      node["%s"].push_back(%s_item);'%(field.name,field.name))
     print("    }")
   else:
@@ -82,8 +82,12 @@ for field in spec.parsed_fields():
   cpp_type = genyamlcpp.msg_type_to_cpp(field.type)
   if (field.is_array):
     print('    if (node["%s"].IsSequence()) {'%(field.name))
-    print('      for (auto&& %s_item : %s) {'%(field.name,field.name))
-    print('        msg.%s.push_back(%s_item.as<%s>());'%(field.name,field.name,cpp_type))
+    if(field.array_len is not None):
+      print('      for(unsigned int i = 0; i < node["%s"].size(); ++i) {'%(field.name))
+      print('        msg.%s[i] = node["%s"][i].as<%s>();'%(field.name,field.name,cpp_type))
+    else:
+      print('      for(unsigned int i = 0; i < node["%s"].size(); ++i) {'%(field.name))
+      print('        msg.%s.push_back(node["%s"][i].as<%s>());'%(field.name,field.name,cpp_type))
     print("      }")
     print("    }")
   else:
