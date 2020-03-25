@@ -14,8 +14,10 @@ if(NOT CPPYAML_HEADER_INCLUDE_DIR)
 endif()
 
 MESSAGE(AUTHOR_WARNING "generate cppyaml files with " 
-    "'rosrun genyamlcpp genyamlcpp_message_artifact -o ${CPPYAML_HEADER_INCLUDE_DIR}'"
+    "'rosrun genyamlcpp genyamlcpp_message_artifacts -o ${CPPYAML_HEADER_INCLUDE_DIR}/..'"
     " to generate headers or set CPPYAML_HEADER_INCLUDE_DIR to the correct path")
+
+MESSAGE(AUTHOR_WARNING "run tests with 'catkin run_test'")
 
 ##############################
 ##  Deps
@@ -24,11 +26,23 @@ find_package(catkin REQUIRED
     COMPONENTS
     cmake_modules
     genyamlcpp
+    message_generation
 
     geometry_msgs
     std_msgs
 )
 include_directories(${catkin_INCLUDE_DIRS})
+
+add_message_files(
+  DIRECTORY msg
+  FILES
+  Array.msg
+  Child.msg
+)
+
+generate_messages(DEPENDENCIES
+    std_msgs
+)
 
 #find_package(YamlCpp REQUIRED)
 #include_directories(${YAMLCPP_INCLUDE_DIR})
@@ -68,5 +82,9 @@ if(CATKIN_ENABLE_TESTING)
 
     catkin_add_gtest(${project}_geometry_msgs test/geometry_msgs.cpp)
     target_link_libraries(${project}_geometry_msgs ${catkin_LIBRARIES} yaml-cpp)
+
+    catkin_add_gtest(${project}_custom_msgs test/custom_msgs.cpp)
+    target_link_libraries(${project}_custom_msgs ${catkin_LIBRARIES} yaml-cpp)
+
 endif()
 
